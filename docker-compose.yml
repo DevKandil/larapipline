@@ -28,6 +28,21 @@ services:
             - redis
             - minio
 
+    frontend:
+        build:
+            context: './frontend'
+            dockerfile: docker/local/Dockerfile
+        image: 'larapipline-frontend'
+        container_name: larapipline-frontend
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        volumes:
+            - './frontend:/app'
+            - '/app/node_modules'
+        networks:
+            - larapipline
+
     pgsql:
         image: 'postgres:18-alpine'
         container_name: larapipline-pgsql
