@@ -1,3 +1,70 @@
+services:
+    app:
+        build:
+            context: './backend/docker/local'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'larapipline-app'
+        container_name: larapipline-app
+        restart: unless-stopped
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            XDEBUG_MODE: '${XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            SUPERVISOR_PHP_COMMAND: "/usr/sbin/php-fpm8.4 -F"
+        volumes:
+            - './backend:/var/www/html'
+        networks:
+            - larapipline
+        depends_on:
+            - pgsql
+            - redis
+            - minio
+
+    web:
+        image: nginx:alpine
+        container_name: larapipline-web
+        restart: unless-stopped
+        ports:
+            - '${APP_PORT:-80}:80'
+        volumes:
+            - './backend:/var/www/html'
+            - './backend/docker/local/nginx/default.conf:/etc/nginx/conf.d/default.conf'
+        networks:
+            - larapipline
+        depends_on:
+            - app
+
+    worker:
+        build:
+            context: './backend/docker/local'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'larapipline-worker'
+        container_name: larapipline-worker
+        restart: unless-stopped
+        environment:
+            WWWUSER: '${WWWUSER}'
+            SUPERVISOR_PHP_COMMAND: "php /var/www/html/artisan horizon"
+        volumes:
+            - './backend:/var/www/html'
+        networks:
+            - larapipline
+        depends_on:
+            - app
+            - pgsql
+            - redis
+
+    frontend:
+        build:
+            context: './frontend'
+            dockerfile: docker/local/Dockerfile
+        image: 'larapipline-frontend'
         container_name: larapipline-frontend
         restart: unless-stopped
         ports:
