@@ -1,38 +1,3 @@
-services:
-    backend:
-        build:
-            context: './backend/docker/local'
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: 'larapipline-8.4'
-        container_name: larapipline-backend
-        restart: unless-stopped
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-            - '${XDEBUG_PORT:-9003}'
-        environment:
-            WWWUSER: '${WWWUSER}'
-            XDEBUG_MODE: '${XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${XDEBUG_CONFIG:-client_host=host.docker.internal}'
-            IGNITION_LOCAL_SITES_PATH: '${PWD}'
-        volumes:
-            - './backend:/var/www/html'
-        networks:
-            - larapipline
-        depends_on:
-            - pgsql
-            - redis
-            - minio
-
-    frontend:
-        build:
-            context: './frontend'
-            dockerfile: docker/local/Dockerfile
-        image: 'larapipline-frontend'
         container_name: larapipline-frontend
         restart: unless-stopped
         ports:
