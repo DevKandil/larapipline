@@ -1,0 +1,95 @@
+services:
+    app:
+        image: 'devkandil/larapipline-backend:latest'
+        restart: unless-stopped
+        environment:
+            APP_ENV: production
+            APP_DEBUG: false
+            APP_KEY: '${APP_KEY}'
+            DB_CONNECTION: pgsql
+            DB_HOST: pgsql
+            DB_PORT: 5432
+            DB_DATABASE: '${DB_DATABASE}'
+            DB_USERNAME: '${DB_USERNAME}'
+            DB_PASSWORD: '${DB_PASSWORD}'
+            REDIS_HOST: redis
+            REDIS_PASSWORD: '${REDIS_PASSWORD}'
+            QUEUE_CONNECTION: redis
+            SESSION_DRIVER: redis
+        networks:
+            - larapipline
+        depends_on:
+            - pgsql
+            - redis
+
+    web:
+        image: 'devkandil/larapipline-nginx:latest'
+        restart: unless-stopped
+        ports:
+            - '80:80'
+        networks:
+            - larapipline
+        depends_on:
+            - app
+
+    worker:
+        image: 'devkandil/larapipline-backend:latest'
+        restart: unless-stopped
+        environment:
+            APP_ENV: production
+            APP_DEBUG: false
+            APP_KEY: '${APP_KEY}'
+            DB_CONNECTION: pgsql
+            DB_HOST: pgsql
+            DB_PORT: 5432
+            DB_DATABASE: '${DB_DATABASE}'
+            DB_USERNAME: '${DB_USERNAME}'
+            DB_PASSWORD: '${DB_PASSWORD}'
+            REDIS_HOST: redis
+            REDIS_PASSWORD: '${REDIS_PASSWORD}'
+            QUEUE_CONNECTION: redis
+            SUPERVISOR_PHP_COMMAND: "php /var/www/html/artisan horizon"
+        networks:
+            - larapipline
+        depends_on:
+            - app
+            - pgsql
+            - redis
+
+    frontend:
+        image: 'devkandil/larapipline-frontend:latest'
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        networks:
+            - larapipline
+
+    pgsql:
+        image: 'postgres:15-alpine'
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD}'
+        volumes:
+            - 'larapipline-pgsql:/var/lib/postgresql/data'
+        networks:
+            - larapipline
+
+    redis:
+        image: 'redis:alpine'
+        restart: unless-stopped
+        volumes:
+            - 'larapipline-redis:/data'
+        networks:
+            - larapipline
+
+networks:
+    larapipline:
+        driver: bridge
+
+volumes:
+    larapipline-pgsql:
+        driver: local
+    larapipline-redis:
+        driver: local
