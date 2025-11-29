@@ -11,7 +11,7 @@ WORKDIR /var/www/html
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan serve --host=0.0.0.0 --port=80"
-ENV SUPERVISOR_PHP_USER="larapipline"
+ENV SUPERVISOR_PHP_USER="root"
 ENV PLAYWRIGHT_BROWSERS_PATH=0
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -62,6 +62,7 @@ COPY start-container /usr/local/bin/start-container
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY php.ini /etc/php/8.4/cli/conf.d/99-larapipline.ini
 COPY php-fpm.conf /etc/php/8.4/fpm/pool.d/www.conf
+RUN sed -i 's/^error_log = .*/error_log = \/proc\/self\/fd\/2/' /etc/php/8.4/fpm/php-fpm.conf
 RUN chmod +x /usr/local/bin/start-container
 
 EXPOSE 9000

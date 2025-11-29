@@ -24,7 +24,6 @@ setup:
 	cd backend && composer install
 	cd backend && npm install
 	cd backend && php artisan key:generate
-	cd backend && php artisan l5-swagger:generate
 	cd backend && php artisan storage:link
 
 	@echo "📝 Updating /etc/hosts with required domains..."
@@ -87,7 +86,7 @@ setup:
 	cd backend && composer install
 	cd backend && npm install
 	cd backend && php artisan key:generate
-	cd backend && php artisan l5-swagger:generate
+
 	cd backend && php artisan storage:link
 
 	@echo "📝 Updating /etc/hosts with required domains..."
@@ -145,7 +144,7 @@ test:
 # Generate API documentation
 docs:
 	@echo "📚 Generating API documentation..."
-	docker compose -f docker-compose.yml exec app php artisan l5-swagger:generate
+	# docker compose -f docker-compose.yml exec app php artisan l5-swagger:generate
 
 # Refresh the database and run migrations
 fresh:
