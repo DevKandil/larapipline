@@ -5,6 +5,10 @@ on:
     branches: [ "main" ]
     paths:
       - 'frontend/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend/**'
 
 jobs:
   check:
