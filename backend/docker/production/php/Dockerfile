@@ -45,7 +45,7 @@ RUN mkdir -p /var/log/laravel && chown -R www-data:www-data /var/log/laravel
 RUN mkdir -p /tmp && chmod 777 /tmp
 
 # Configure PHP-FPM
-COPY backend/docker/local/php-fpm.conf /etc/php/8.4/fpm/pool.d/www.conf
+COPY docker/local/php-fpm.conf /etc/php/8.4/fpm/pool.d/www.conf
 RUN sed -i 's/^error_log = .*/error_log = \/proc\/self\/fd\/2/' /etc/php/8.4/fpm/php-fpm.conf
 
 # Copy application code
